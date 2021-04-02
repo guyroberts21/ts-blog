@@ -7,21 +7,21 @@ var express_1 = __importDefault(require("express"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 var showdown_1 = __importDefault(require("showdown"));
+var serve_favicon_1 = __importDefault(require("serve-favicon"));
 var app = express_1.default();
 var converter = new showdown_1.default.Converter();
 converter.setOption('noHeaderId', true);
-// const testMessage = fs.readFileSync(
-//   path.join(__dirname, '../posts/test.md'),
-//   'utf-8'
-// );
-// const convertedMsg = converter.makeHtml(testMessage);
-// console.log(convertedMsg);
+// load favicon
+app.use(serve_favicon_1.default(path_1.default.join(__dirname, '../src/utils', 'favicon.ico')));
 app.get('/', function (req, res) {
     res.sendFile('index.html', { root: path_1.default.join(__dirname, '../views') });
 });
-app.get('/:postId', function (req, res) {
-    var postId = req.params.postId;
-    var postMessageData = fs_1.default.readFileSync(path_1.default.join(__dirname, "../posts/" + postId + ".md"), 'utf-8');
+app.get('/:slug', function (req, res) {
+    var slug = req.params.slug;
+    var dataPath = "../posts/" + slug + ".md";
+    if (!fs_1.default.existsSync(path_1.default.join(__dirname, dataPath)))
+        res.redirect('/');
+    var postMessageData = fs_1.default.readFileSync(path_1.default.join(__dirname, dataPath), 'utf-8');
     var postMessageHTML = converter.makeHtml(postMessageData);
     res.send(postMessageHTML);
 });
